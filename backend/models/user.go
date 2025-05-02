@@ -15,7 +15,7 @@ type User struct {
 	Updated_at time.Time
 }
 
-func CreateUser(db *sql.DB, name string, password string, email string) {
+func CreateUser(db *sql.DB, name string, password string, email string) (int64, error) {
 	user := &User{
 		Name:       name,
 		Password:   password,
@@ -24,18 +24,27 @@ func CreateUser(db *sql.DB, name string, password string, email string) {
 		Updated_at: time.Now(),
 	}
 
-	db.Exec("INSERT INTO users (name, password, email, created_at, updated_at) VALUES (?, ?, ?, ?, ?)", user.Name, user.Password, user.Email, user.Created_at, user.Updated_at)
+	result, err := db.Exec("INSERT INTO users (name, password, email, created_at, updated_at) VALUES (?, ?, ?, ?, ?)", user.Name, user.Password, user.Email, user.Created_at, user.Updated_at)
+	if err != nil {
+		return 0, fmt.Errorf("CreateUser: %v", err)
+	}
 
+	id, err := result.LastInsertId()
+	if err != nil {
+		return 0, fmt.Errorf("CreateUser: %v", err)
+	}
+
+	return id, nil
 }
 
-func FindUserByID(db *sql.DB, id int64) User {
-    var user User
-    row := db.QueryRow("SELECT * FROM users WHERE id = ?", id)
-    if err := row.Scan(&user.ID, &user.Name, &user.Password, &user.Email, &user.Created_at, &user.Updated_at) {
-        if err == sql.ErrNoRows {
-            return user, fmt.Errorf("FindUserByID %d: User not found", id)
-        }
-        return user, fmt.Errorf("FindUserByID %d: %v" id, err)
-    }
-    return user, nil
+func FindUserByID(db *sql.DB, id int64) (User, error) {
+	var user User
+	row := db.QueryRow("SELECT * FROM users WHERE id = ?", id)
+	if err := row.Scan(&user.ID, &user.Name, &user.Password, &user.Email, &user.Created_at, &user.Updated_at); err != nil {
+		if err == sql.ErrNoRows {
+			return user, fmt.Errorf("FindUserByID %d: User not found", id)
+		}
+		return user, fmt.Errorf("FindUserByID %d: %v", id, err)
+	}
+	return user, nil
 }
