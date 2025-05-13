@@ -1,16 +1,11 @@
 package routes
 
 import (
-	"fmt"
 	"net/http"
 )
 
-func routes() {
+func InitRoutes() *http.ServeMux {
 	mux := http.NewServeMux()
-	mux.HandleFunc("/", handleNewUser)
-
-}
-
-func handleNewUser(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprintf(w, "Hello World")
+	mux.HandleFunc("POST /users", handleNewUser)
+	return mux
 }
