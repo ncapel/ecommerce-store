@@ -24,6 +24,7 @@ func initDBConfig() *mysql.Config {
 	cfg.Net = "tcp"
 	cfg.Addr = "127.0.0.1:3306"
 	cfg.DBName = os.Getenv("DBName")
+	cfg.ParseTime = true
 	return cfg
 }
 
