@@ -32,7 +32,8 @@ var Cfg = initDBConfig()
 func ConnectDB() {
 	cfg := Cfg
 
-	Db, err := sql.Open("mysql", cfg.FormatDSN())
+	var err error
+	Db, err = sql.Open("mysql", cfg.FormatDSN())
 	if err != nil {
 		log.Fatal(err)
 	}
